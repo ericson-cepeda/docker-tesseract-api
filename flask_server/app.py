@@ -1,9 +1,10 @@
 import os
 import logging
 from logging import Formatter, FileHandler
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response
+import jsonpickle
 
-from ocr import process_image
+from ocr import process_image, process_image_data
 
 app = Flask(__name__)
 _VERSION = 1  # API version
@@ -23,10 +24,30 @@ def ocr():
             return jsonify({"output": output})
         else:
             return jsonify({"error": "only .jpg files, please"})
-    except:
+    except Exception as e:
+        logging.exception(e)
         return jsonify(
             {"error": "Did you mean to send: {'image_url': 'some_jpeg_url'}"}
         )
+
+
+# route http posts to this method
+@app.route('/v{}/data'.format(_VERSION), methods=['POST'])
+def data():
+    try:
+        # encode response using jsonpickle
+        response_pickled = jsonpickle.encode(process_image_data(request.data))
+        return Response(response=response_pickled, status=200, mimetype="application/json")
+    except Exception as e:
+        logging.exception(e)
+        return jsonify(
+            {"message": "The image could not be decoded"}
+        )
+
+
+@app.route('/v{}/health'.format(_VERSION), methods=["GET"])
+def health():
+    return "OK"
 
 
 @app.errorhandler(500)

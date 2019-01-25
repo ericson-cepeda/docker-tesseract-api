@@ -16,6 +16,10 @@ mechanize==0.2.5
 nltk==3.0.0
 paramiko==1.12.2
 pycrypto==2.6.1
-pytesseract==0.1.5
+pytesseract==0.2.6
 requests==2.5.1
 wsgiref==0.1.2
+
+jsonpickle==1.1
+
+opencv-contrib-python==4.0.0.21
